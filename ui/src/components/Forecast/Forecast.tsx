@@ -13,7 +13,7 @@ const Forecast = ({ data, address }: ForecastProps) => {
     <div>
       {!data ? null : (
         <div>
-          <span>{`Results for ${address}`}</span>
+          <h3>{`Forecast for ${address}`}</h3>
           <div className="tile-group">
             {data.map((d, index: number) => {
               return <Tile key={index} day={d} />;

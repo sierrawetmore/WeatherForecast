@@ -7,23 +7,17 @@ import "./App.css";
 
 function App() {
   // TODO standardize class names
-  // TODO hitting enter should also submit
   // TODO a11y
   // TODO testing
-  // TODO break into files
   // TODO add loading states
   // TODO clean up any types
   const [data, setData] = useState<GridpointForecastPeriod[] | null>(null);
-
-  useEffect(() => {
-    console.log("data: ", data);
-  }, [data]);
+  const [shortAddress, setShortAddress] = useState<string>("");
   return (
     <div className="App">
       <h1>Weather Forecast</h1>
-      <p>Enter an address to see the 7 day forecast</p>
-      <Search setData={setData} />
-      <Forecast data={data} address="put address here" />
+      <Search setData={setData} setShortAddress={setShortAddress} />
+      <Forecast data={data} address={shortAddress} />
     </div>
   );
 }

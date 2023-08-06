@@ -1,63 +1,46 @@
 .search-element {
-  /* background-color: var(--color-1); */
   height: 7rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
 
-.search-element__error {
-  color: rgb(181, 41, 41);
-  font-weight: bold;
-  position: relative;
-}
+  & form {
+    height: 80%;
+    border-radius: 0.25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-.search-element form {
-  height: 80%;
-  /* height: 30px; */
-  border-radius: 0.25rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+    & input,
+    button {
+      height: 100%;
+      border-radius: inherit;
+      background-color: var(--color-5);
 
-.search-element form input,
-.search-element form button {
-  height: 100%;
-  border-radius: inherit;
-  background-color: var(--color-5);
-  /* color: ; */
-  /* color: var(--color-7); */
-}
+      &:focus {
+        cursor: pointer;
+        background-color: var(--color-5__focus);
+        outline: 2px solid var(--color-1);
+      }
 
-.search-element form input {
-  width: 30rem;
-}
+      &:hover {
+        background-color: var(--color-5__focus);
+        outline: 2px solid var(--color-1);
+      }
+    }
 
-.search-element form button {
-  cursor: pointer;
-}
+    & input {
+      width: 30rem;
+    }
 
-.search-element form button:focus,
-.search-element form input:focus {
-  cursor: pointer;
-  background-color: var(--color-5__focus);
-  outline: 2px solid var(--color-1);
-}
+    & button {
+      cursor: pointer;
+    }
+  }
 
-.search-element form button:hover,
-.search-element form input:hover {
-  background-color: var(--color-5__focus);
-  outline: 2px solid var(--color-1);
+  & .search-element__error {
+    color: rgb(181, 41, 41);
+    font-weight: bold;
+    position: relative;
+  }
 }
-
-/* .search-element form input {
-  height: inherit;
-  border-radius: inherit;
-  width: 40rem;
-}
-
-.search-element form button {
-  height: inherit;
-  border-radius: inherit;
-} */

@@ -30,7 +30,8 @@ const Tile = ({ day }: TileProps) => {
           data-testid="tile-flipped"
           onClick={() => {
             console.log("clicked");
-            //flip
+            // flip
+            // could add className when "locked in" and handle transform in css file
           }}
         >
           <h4>{day.name}</h4>

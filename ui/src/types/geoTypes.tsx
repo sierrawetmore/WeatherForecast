@@ -12,7 +12,20 @@ export type GeoResponse = {
 };
 
 type AddressMatches = {
-  addressComponents: any;
+  addressComponents: {
+    zip: string;
+    streetName: string;
+    preType: string;
+    city: string;
+    preDirection: string;
+    suffixDirection: string;
+    fromAddress: string;
+    state: string;
+    suffixType: string;
+    toAddress: string;
+    suffixQualifier: string;
+    preQualifier: string;
+  };
   coordinates: {
     x: number;
     y: number;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { debounce } from "lodash";
 import { GeoResponse } from "../../types/geoTypes";
 import {
@@ -6,48 +6,58 @@ import {
   GridpointForecastPeriod,
   PointGeoJson,
 } from "../../types/weatherTypes";
+import { errorReducer } from "../../reducers/Search";
 import "./Search.css";
 
 type SearchProps = {
   setData: React.Dispatch<
     React.SetStateAction<GridpointForecastPeriod[] | null>
   >;
+  setShortAddress: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const Search = ({ setData }: SearchProps) => {
-  const [showErrorMessage, setShowErrorMessage] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [addressInput, setAddressInput] = useState<string>("");
-  const debounceAddressInput = useCallback(debounce(handleDebounce, 1000), []);
+const initalError = {
+  showError: false,
+  errorMessage: "",
+};
 
+const Search = ({ setData, setShortAddress }: SearchProps) => {
+  const [addressInput, setAddressInput] = useState<string>("");
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
+  const [{ showError, errorMessage }, dispatch] = useReducer(
+    errorReducer,
+    initalError
+  );
+
+  const handleDebounce = (input: string) => {
+    setAddressInput(input);
+  };
+
+  const debounceAddressInput = useCallback(debounce(handleDebounce, 500), []);
+
+  const onSearch = () => {
+    if (!addressInput) {
+      // notify use that their address is empty
+      dispatch({
+        type: "empty address",
+        error: "Whoops: You forgot to enter an address!",
+      });
+      setData(null);
+
+      return;
+    }
+
+    // reset
+    dispatch({ type: "success" });
+
+    getGeo();
+  };
 
   useEffect(() => {
     if (coords) {
       getWeatherGrid();
     }
   }, [coords]);
-
-  function handleDebounce(input: string) {
-    setAddressInput(input);
-  }
-
-  const onSearch = () => {
-    if (!addressInput) {
-      // notify use that their address is empty
-      setShowErrorMessage(true);
-      setErrorMessage("Whoops! You forgot to enter an address...");
-      setData(null);
-
-      return;
-    }
-    // reset
-    setShowErrorMessage(false);
-    setErrorMessage("");
-    console.log("search!");
-
-    getGeo();
-  };
 
   async function getGeo() {
     try {
@@ -65,9 +75,16 @@ const Search = ({ setData }: SearchProps) => {
       if (response && response.length) {
         // I haven't seen a scenario yet where there is more than one record here
         setCoords(response[0].coordinates);
+
+        const city = response[0].addressComponents.city.toLowerCase();
+        const state = response[0].addressComponents.state.toUpperCase();
+        const formattedShortAddress = [
+          city[0].toUpperCase() + city.slice(1),
+          state,
+        ].join(", ");
+        setShortAddress(formattedShortAddress);
       } else {
-        setErrorMessage("Sorry, no results matched this address");
-        setShowErrorMessage(true);
+        dispatch({ type: "no results", error: "No results found" });
         setData(null);
       }
     } catch (err) {
@@ -78,22 +95,16 @@ const Search = ({ setData }: SearchProps) => {
 
   async function getWeatherGrid() {
     try {
-      // const response = await fetch(
-      //   "https://api.weather.gov/points/38.8894,-77.0352"
-      // ).then((res) => res.json());
-
       const response: PointGeoJson = await fetch(
         `https://api.weather.gov/points/${coords?.y.toFixed(
           4
         )},${coords?.x.toFixed(4)}`
       ).then((res) => res.json());
-      console.log(response);
-      let { forecast } = response.properties;
+      const { forecast } = response.properties;
 
       const forecastResp: GridpointForecastGeoJson = await fetch(forecast).then(
         (res) => res.json()
       );
-      console.log(forecast, forecastResp, typeof forecastResp);
       let { periods } = forecastResp.properties;
       setData(periods);
     } catch (err) {
@@ -108,9 +119,8 @@ const Search = ({ setData }: SearchProps) => {
           id="address-input"
           name="address-input"
           autoFocus
-          // not working?
           autoComplete="on"
-          placeholder="Enter an address"
+          placeholder="Enter an address to see the 7-day forecast"
           onChange={(e) => {
             debounceAddressInput(e.target.value);
           }}
@@ -133,7 +143,7 @@ const Search = ({ setData }: SearchProps) => {
           Search
         </button>
       </form>
-      {showErrorMessage ? (
+      {showError ? (
         <span className="search-element__error">{errorMessage}</span>
       ) : (
         <></>
