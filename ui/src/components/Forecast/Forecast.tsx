@@ -1,25 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Tile from "./Tile/Tile";
-const Forecast = ({ data }: any) => {
-  console.log(data);
+import { GridpointForecastPeriod } from "../../types/weatherTypes";
+import "./Forecast.css";
+
+type ForecastProps = {
+  data: GridpointForecastPeriod[] | null;
+  address: string;
+};
+
+const Forecast = ({ data, address }: ForecastProps) => {
   return (
     <div>
-      {!data ? (
-        <div>Nothing to see here</div>
-      ) : (
-        <div
-          className="tile-group"
-          style={{
-            backgroundColor: "lightblue",
-            display: "flex",
-            justifyContent: "center",
-            maxWidth: "700px",
-            overflow: "auto",
-          }}
-        >
-          {data.map((d: any) => {
-            return <Tile day={d} />;
-          })}
+      {!data ? null : (
+        <div>
+          <span>{`Results for ${address}`}</span>
+          <div className="tile-group">
+            {data.map((d, index: number) => {
+              return <Tile key={index} day={d} />;
+            })}
+          </div>{" "}
         </div>
       )}
     </div>

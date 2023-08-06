@@ -1,0 +1,9 @@
+.tile-group {
+  display: flex;
+  /* border: 3px solid red; */
+  justify-content: center;
+  /* background-color: var(--color-5); */
+  /* height: 30rem; */
+  border-radius: 1rem;
+  overflow: hidden;
+}

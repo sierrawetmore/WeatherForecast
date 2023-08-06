@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { debounce } from "lodash";
 import Forecast from "./components/Forecast/Forecast";
 import Search from "./components/Search/Search";
+import { GridpointForecastPeriod } from "./types/weatherTypes";
 import "./App.css";
 
 function App() {
@@ -12,17 +13,17 @@ function App() {
   // TODO break into files
   // TODO add loading states
   // TODO clean up any types
-  const [data, setData] = useState();
+  const [data, setData] = useState<GridpointForecastPeriod[] | null>(null);
 
   useEffect(() => {
-    console.log(data);
+    console.log("data: ", data);
   }, [data]);
   return (
     <div className="App">
-      <header>Weather Forecast</header>
+      <h1>Weather Forecast</h1>
       <p>Enter an address to see the 7 day forecast</p>
       <Search setData={setData} />
-      <Forecast data={data} />
+      <Forecast data={data} address="put address here" />
     </div>
   );
 }
