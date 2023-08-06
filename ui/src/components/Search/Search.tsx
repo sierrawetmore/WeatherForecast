@@ -39,8 +39,8 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
     if (!addressInput) {
       // notify use that their address is empty
       dispatch({
-        type: "empty address",
-        error: "Whoops: You forgot to enter an address!",
+        type: "error",
+        error: "Whoops! You forgot to enter an address!",
       });
       setData(null);
 
@@ -84,7 +84,7 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
         ].join(", ");
         setShortAddress(formattedShortAddress);
       } else {
-        dispatch({ type: "no results", error: "No results found" });
+        dispatch({ type: "error", error: "No results found" });
         setData(null);
       }
     } catch (err) {
