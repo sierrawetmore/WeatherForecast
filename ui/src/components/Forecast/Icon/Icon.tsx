@@ -22,7 +22,7 @@ const Icon = ({ info }: IconProps) => {
   } else if (info.toLowerCase().includes("snow")) {
     icon = <SevereColdIcon sx={{ fontSize: 70, color: "grey" }} />;
   } else if (info.toLowerCase().includes("rain")) {
-    icon = <WaterDropIcon sx={{ fontSize: 70, color: "lightblue" }} />;
+    icon = <WaterDropIcon sx={{ fontSize: 70, color: "lightskyblue" }} />;
   }
   //  else if (info.includes("showers")) {
   //   setIcon(<WaterDropIcon sx={{ fontSize: 40, color: "blue" }} />);
