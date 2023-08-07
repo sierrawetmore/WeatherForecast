@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from "react";
-import { debounce } from "lodash";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { GeoResponse } from "../../types/geoTypes";
 import {
   GridpointForecastGeoJson,
@@ -7,6 +6,7 @@ import {
   PointGeoJson,
 } from "../../types/weatherTypes";
 import { errorReducer } from "../../reducers/Search";
+import { TEST_FORECAST_DATA } from "../Forecast/TestForecastData";
 import "./Search.css";
 
 type SearchProps = {
@@ -22,21 +22,15 @@ const initalError = {
 };
 
 const Search = ({ setData, setShortAddress }: SearchProps) => {
-  const [addressInput, setAddressInput] = useState<string>("");
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
   const [{ showError, errorMessage }, dispatch] = useReducer(
     errorReducer,
     initalError
   );
 
-  const handleDebounce = (input: string) => {
-    setAddressInput(input);
-  };
-
-  const debounceAddressInput = useCallback(debounce(handleDebounce, 500), []);
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const onSearch = () => {
-    if (!addressInput) {
+    if (!inputRef?.current?.value) {
       // notify use that their address is empty
       dispatch({
         type: "error",
@@ -62,9 +56,9 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
   async function getGeo() {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/" +
+        "http://localhost:3001/geo/" +
           new URLSearchParams({
-            address: addressInput,
+            address: inputRef?.current?.value ?? "",
           })
       )
         .then((res) => res.json())
@@ -72,6 +66,7 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
           return result.addressMatches;
         });
 
+      console.log(response);
       if (response && response.length) {
         // I haven't seen a scenario yet where there is more than one record here
         setCoords(response[0].coordinates);
@@ -100,12 +95,16 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
           4
         )},${coords?.x.toFixed(4)}`
       ).then((res) => res.json());
+
       const { forecast } = response.properties;
 
       const forecastResp: GridpointForecastGeoJson = await fetch(forecast).then(
         (res) => res.json()
       );
-      let { periods } = forecastResp.properties;
+      // Using TEST_FORECAST_DATA as fallback here because api is currently down
+      const periods = forecastResp?.properties?.periods ?? TEST_FORECAST_DATA;
+      // const { periods } = forecastResp?.properties;
+      console.log(periods);
       setData(periods);
     } catch (err) {
       console.error(err);
@@ -116,14 +115,10 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
     <div className="search-element">
       <form>
         <input
+          ref={inputRef}
           id="address-input"
           name="address-input"
-          autoFocus
-          autoComplete="on"
           placeholder="Enter an address to see the 7-day forecast"
-          onChange={(e) => {
-            debounceAddressInput(e.target.value);
-          }}
           onMouseOver={() => {
             document.getElementById("address-input")?.focus();
           }}
@@ -131,6 +126,7 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
             document.getElementById("address-input")?.blur();
           }}
           required
+          type="text"
         />
         <button
           onClick={(e) => {
@@ -144,7 +140,12 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
         </button>
       </form>
       {showError ? (
-        <span className="search-element__error">{errorMessage}</span>
+        <span
+          className="search-element__error"
+          data-testid="search-element__error"
+        >
+          {errorMessage}
+        </span>
       ) : (
         <></>
       )}

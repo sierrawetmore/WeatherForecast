@@ -13,10 +13,18 @@ const Tile = ({ day }: TileProps) => {
   if (day.isDaytime)
     return (
       <div className="forecast-tile">
-        <div className="forecast-tile__front" data-testid="tile-front">
-          <h4>{day.name}</h4>
-          <Icon info={day.shortForecast} />
-          <p>{day.shortForecast}</p>
+        <div
+          className="forecast-tile__front"
+          data-testid={"tile-front-" + day.name}
+        >
+          <div>
+            <h4>{day.name}</h4>
+            <Icon info={day.shortForecast} />
+          </div>
+          {/* <div> */}
+          <div className="forecast-tile__front--tile-content">
+            <p>{day.shortForecast}</p>
+          </div>
           <div className="forecast-tile__front--footer">
             <span>{`${day.temperature}\u00B0${day.temperatureUnit}`}</span>
             <span>
@@ -24,15 +32,11 @@ const Tile = ({ day }: TileProps) => {
               {day.probabilityOfPrecipitation?.value ?? 0}%
             </span>
           </div>
+          {/* </div> */}
         </div>
         <div
           className="forecast-tile__flipped"
-          data-testid="tile-flipped"
-          onClick={() => {
-            console.log("clicked");
-            // flip
-            // could add className when "locked in" and handle transform in css file
-          }}
+          data-testid={"tile-flipped-" + day.name}
         >
           <h4>{day.name}</h4>
           <span> {day.detailedForecast}</span>
@@ -42,11 +46,9 @@ const Tile = ({ day }: TileProps) => {
           </span>
           <span>
             <OpacityIcon sx={{ fontSize: 20, color: "lightblue" }} />
-            {day.relativeHumidity.value ?? 0}
+            {day.relativeHumidity?.value ?? 0}
             {"% humidity  "}
           </span>
-
-          <p className="forecast-tile__front--footer">Click the card to pin</p>
         </div>
       </div>
     );

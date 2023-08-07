@@ -17,20 +17,29 @@
       border-radius: inherit;
       background-color: var(--color-5);
 
-      &:focus {
+      /* &:focus {
         cursor: pointer;
         background-color: var(--color-5__focus);
         outline: 2px solid var(--color-1);
-      }
+      } */
 
       &:hover {
-        background-color: var(--color-5__focus);
+        background-color: var(--color-5__hover);
+        outline: 2px solid var(--color-1);
+      }
+
+      &:active {
+        background-color: var(--color-5__active);
         outline: 2px solid var(--color-1);
       }
     }
 
     & input {
       width: 30rem;
+    }
+
+    & input::placeholder {
+      color: var(--color-1);
     }
 
     & button {

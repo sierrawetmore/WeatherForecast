@@ -57,6 +57,7 @@ export type GridpointForecastPeriod = {
   startTime: string;
   endTime: string;
   isDaytime: boolean;
+  icon?: any;
   temperature: any;
   temperatureUnit: string;
   temperatureTrend: string | null;
@@ -64,7 +65,7 @@ export type GridpointForecastPeriod = {
   dewpoint: any;
   relativeHumidity: any;
   windSpeed: any;
-  windGust: any;
+  windGust?: any;
   windDirection: any;
   shortForecast: string;
   detailedForecast: string;

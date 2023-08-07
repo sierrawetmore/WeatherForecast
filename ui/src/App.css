@@ -1,16 +1,18 @@
 :root {
+  /* TODO: clean up */
   --color-1: #3f3244;
-  --color-2: #2274a5;
-  --color-2__alt: #2275a595;
-
-  --color-3: #f0544f;
-  --color-4: #54c2a3;
+  /* --color-2: #2274a5;
+  --color-2__alt: #2275a595; */
+  /* --color-3: #f0544f;
+  --color-4: #54c2a3; */
   --color-5: #9b917d;
   --color-5__focus: #d1c7b4b5;
+  --color-5__active: #ada4949a;
+  --color-5__hover: #d1c7b49a;
 
-  --color-6: #333333;
+  /* --color-6: #333333;
   --color-7: #d2d4e8;
-  --color-8: #e56b6f;
+  --color-8: #e56b6f; */
   --color-9: #66a182;
 }
 
@@ -25,6 +27,11 @@
   background-color: var(--color-9);
   height: 100vh;
   width: 100vw;
+  overflow: hidden;
+}
+
+.App h1 {
+  padding: 1rem;
 }
 
 .App-logo {

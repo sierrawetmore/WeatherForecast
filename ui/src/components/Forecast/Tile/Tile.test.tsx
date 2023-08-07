@@ -23,17 +23,15 @@ const dummyDay: GridpointForecastPeriod = {
 };
 
 test("tile loads and displays forecast", async () => {
-  // ARRANGE
   render(<Tile day={dummyDay} />);
 
-  // ASSERT
   const fridays = screen.getAllByText(/friday/i);
-  // front and back
+  // front and back of tile
   expect(fridays).toHaveLength(2);
-  expect(screen.getByTestId("tile-front")).toHaveTextContent(
+  expect(screen.getByTestId("tile-front-Friday")).toHaveTextContent(
     "chance of meatballs"
   );
-  expect(screen.getByTestId("tile-flipped")).toHaveTextContent(
+  expect(screen.getByTestId("tile-flipped-Friday")).toHaveTextContent(
     "meatballs will also be there"
   );
 });

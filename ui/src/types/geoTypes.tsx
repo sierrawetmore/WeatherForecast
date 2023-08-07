@@ -1,4 +1,3 @@
-// todo check docs for type name
 export type GeoResponse = {
   result: {
     addressMatches: AddressMatches[];
