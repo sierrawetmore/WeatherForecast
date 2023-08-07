@@ -66,7 +66,6 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
           return result.addressMatches;
         });
 
-      console.log(response);
       if (response && response.length) {
         // I haven't seen a scenario yet where there is more than one record here
         setCoords(response[0].coordinates);
@@ -104,7 +103,6 @@ const Search = ({ setData, setShortAddress }: SearchProps) => {
       // Using TEST_FORECAST_DATA as fallback here because api is currently down
       const periods = forecastResp?.properties?.periods ?? TEST_FORECAST_DATA;
       // const { periods } = forecastResp?.properties;
-      console.log(periods);
       setData(periods);
     } catch (err) {
       console.error(err);
