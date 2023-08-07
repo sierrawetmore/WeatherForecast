@@ -1,81 +1,108 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { debounce } from "lodash";
+import React, { useEffect, useReducer, useRef, useState } from "react";
+import { GeoResponse } from "../../types/geoTypes";
+import {
+  GridpointForecastGeoJson,
+  GridpointForecastPeriod,
+  PointGeoJson,
+} from "../../types/weatherTypes";
+import { errorReducer } from "../../reducers/Search";
+import { TEST_FORECAST_DATA } from "../Forecast/TestForecastData";
+import "./Search.css";
 
-const Search = ({ setData }: any) => {
-  const [addressInput, setAddressInput] = useState<string>("");
-  const debounceAddressInput = useCallback(debounce(handleDebounce, 1000), []);
+type SearchProps = {
+  setData: React.Dispatch<
+    React.SetStateAction<GridpointForecastPeriod[] | null>
+  >;
+  setShortAddress: React.Dispatch<React.SetStateAction<string>>;
+};
 
-  // this type is wrong
-  const [coords, setCoords] = useState<{ x: string; y: string }>({
-    x: "",
-    y: "",
-  });
+const initalError = {
+  showError: false,
+  errorMessage: "",
+};
 
-  // const [forecastData, setForecastData] = useState<any>();
+const Search = ({ setData, setShortAddress }: SearchProps) => {
+  const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
+  const [{ showError, errorMessage }, dispatch] = useReducer(
+    errorReducer,
+    initalError
+  );
 
-  useEffect(() => {
-    // console.groupCollapsed("Coords");
-    // console.log(coords);
-    if (coords.x && coords.y) {
-      getWeatherGrid();
-    }
-    // console.groupEnd();
-  }, [coords]);
-
-  function handleDebounce(input: string) {
-    setAddressInput(input);
-  }
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const onSearch = () => {
-    if (!addressInput) {
+    if (!inputRef?.current?.value) {
       // notify use that their address is empty
-      console.log("EMPTY ADDRESS");
+      dispatch({
+        type: "error",
+        error: "Whoops! You forgot to enter an address!",
+      });
+      setData(null);
+
       return;
     }
-    console.log("search!");
+
+    // reset
+    dispatch({ type: "success" });
 
     getGeo();
   };
 
+  useEffect(() => {
+    if (coords) {
+      getWeatherGrid();
+    }
+  }, [coords]);
+
   async function getGeo() {
     try {
       const response = await fetch(
-        "http://localhost:3001/api/" +
+        "http://localhost:3001/geo/" +
           new URLSearchParams({
-            address: addressInput,
+            address: inputRef?.current?.value ?? "",
           })
       )
         .then((res) => res.json())
-        .then(({ result }) => {
+        .then(({ result }: GeoResponse) => {
           return result.addressMatches;
         });
-      // .finally(() => {
-      //   // could update loading state here
-      //   console.log();
-      // });
-      // console.log(response);
-      setCoords(response[0].coordinates);
-      // TODO Error check
-      // TODO types
-      // return response[0].coordinates;
+
+      if (response && response.length) {
+        // I haven't seen a scenario yet where there is more than one record here
+        setCoords(response[0].coordinates);
+
+        const city = response[0].addressComponents.city.toLowerCase();
+        const state = response[0].addressComponents.state.toUpperCase();
+        const formattedShortAddress = [
+          city[0].toUpperCase() + city.slice(1),
+          state,
+        ].join(", ");
+        setShortAddress(formattedShortAddress);
+      } else {
+        dispatch({ type: "error", error: "No results found" });
+        setData(null);
+      }
     } catch (err) {
       console.error(err);
+      setData(null);
     }
   }
 
   async function getWeatherGrid() {
     try {
-      const response = await fetch(
-        "https://api.weather.gov/points/38.8894,-77.0352"
+      const response: PointGeoJson = await fetch(
+        `https://api.weather.gov/points/${coords?.y.toFixed(
+          4
+        )},${coords?.x.toFixed(4)}`
       ).then((res) => res.json());
 
-      // console.log(response);
-      // console.log(response.properties);
-      let { cwa, gridX, gridY, forecast } = response.properties;
-      // console.log(cwa, gridX, gridY, forecast);
+      const { forecast } = response.properties;
 
-      const forecastResp = await fetch(forecast).then((res) => res.json());
-      let { periods } = forecastResp.properties;
+      const forecastResp: GridpointForecastGeoJson = await fetch(forecast).then(
+        (res) => res.json()
+      );
+      // Using TEST_FORECAST_DATA as fallback here because api is currently down
+      const periods = forecastResp?.properties?.periods ?? TEST_FORECAST_DATA;
+      // const { periods } = forecastResp?.properties;
       setData(periods);
     } catch (err) {
       console.error(err);
@@ -86,26 +113,40 @@ const Search = ({ setData }: any) => {
     <div className="search-element">
       <form>
         <input
+          ref={inputRef}
+          id="address-input"
           name="address-input"
-          autoFocus
-          // not working?
-          autoComplete="on"
-          placeholder="Enter an address"
-          onChange={(e) => {
-            debounceAddressInput(e.target.value);
+          placeholder="Enter an address to see the 7-day forecast"
+          onMouseOver={() => {
+            document.getElementById("address-input")?.focus();
+          }}
+          onMouseOut={() => {
+            document.getElementById("address-input")?.blur();
           }}
           required
+          type="text"
         />
         <button
           onClick={(e) => {
             e.preventDefault();
             onSearch();
+            e.currentTarget.blur();
           }}
           type="submit"
         >
           Search
         </button>
       </form>
+      {showError ? (
+        <span
+          className="search-element__error"
+          data-testid="search-element__error"
+        >
+          {errorMessage}
+        </span>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
